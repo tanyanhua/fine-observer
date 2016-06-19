@@ -88,10 +88,10 @@ public class FineObserverManager {
 			return;
 		}
 		Iterator<WeakReference<FineObserver<?>>> iterator = observers.iterator();
-		WeakReference<FineObserver<?>> weakReference;
+		FineObserver<T> observerItem;
 		while (iterator.hasNext()) {
-			weakReference = iterator.next();
-			final FineObserver<T> observerItem = (FineObserver<T>) weakReference.get();
+			final WeakReference<FineObserver<?>> weakReference = iterator.next();
+			observerItem = (FineObserver<T>) weakReference.get();
 			if (observerItem == null) {
 				iterator.remove();
 			} else {
@@ -99,10 +99,13 @@ public class FineObserverManager {
 
 					@Override
 					public void run() {
-						try {
-							observerItem.notify(t);
-						} catch (Exception e) {
-							Log.e(TAG, "", e);
+						FineObserver<T> observer = (FineObserver<T>) weakReference.get();
+						if (observer != null) {
+							try {
+								observer.notify(t);
+							} catch (Exception e) {
+								Log.e(TAG, "", e);
+							}
 						}
 					}
 				});
